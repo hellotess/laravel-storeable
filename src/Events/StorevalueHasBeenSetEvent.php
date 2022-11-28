@@ -2,12 +2,12 @@
 
 namespace Hellotess\Storable\Events;
 
-class TranslationHasBeenSetEvent
+class StorevalueHasBeenSetEvent
 {
     public function __construct(
         public mixed $model,
         public string $key,
-        public string $locale,
+        public string $store,
         public mixed $oldValue,
         public mixed $newValue,
     ) {

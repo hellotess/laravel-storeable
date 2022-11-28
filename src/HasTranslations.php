@@ -5,16 +5,16 @@ namespace Hellotess\Storable;
 use Exception;
 use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Support\Str;
-use Hellotess\Storable\Events\TranslationHasBeenSetEvent;
+use Hellotess\Storable\Events\StorevalueHasBeenSetEvent;
 use Hellotess\Storable\Exceptions\AttributeIsNotStorable;
 
 trait HasTranslations
 {
-    protected ?string $translationLocale = null;
+    protected ?string $storevalueStore = null;
 
-    public static function usingLocale(string $locale): self
+    public static function usingLocale(string $store): self
     {
-        return (new self())->setLocale($locale);
+        return (new self())->setLocale($store);
     }
 
     public function getAttributeValue($key): mixed
@@ -42,28 +42,28 @@ trait HasTranslations
         return $this->setStorevalue($key, $this->getLocale(), $value);
     }
 
-    public function translate(string $key, string $locale = '', bool $useFallbackLocale = true): mixed
+    public function translate(string $key, string $store = '', bool $useFallbackStore = true): mixed
     {
-        return $this->getStorevalue($key, $locale, $useFallbackLocale);
+        return $this->getStorevalue($key, $store, $useFallbackStore);
     }
 
-    public function getStorevalue(string $key, string $locale, bool $useFallbackLocale = true): mixed
+    public function getStorevalue(string $key, string $store, bool $useFallbackStore = true): mixed
     {
-        $normalizedLocale = $this->normalizeLocale($key, $locale, $useFallbackLocale);
+        $normalizedStore = $this->normalizeStore($key, $store, $useFallbackStore);
 
-        $isKeyMissingFromLocale = ($locale !== $normalizedLocale);
+        $isKeyMissingFromStore = ($store !== $normalizedStore);
 
-        $translations = $this->getStorevalues($key);
+        $storevalues = $this->getStorevalues($key);
 
-        $translation = $translations[$normalizedLocale] ?? '';
+        $storevalue = $storevalues[$normalizedStore] ?? '';
 
         $storableConfig = app(Storable::class);
 
-        if ($isKeyMissingFromLocale && $storableConfig->missingKeyCallback) {
+        if ($isKeyMissingFromStore && $storableConfig->missingKeyCallback) {
             try {
-                $callbackReturnValue = (app(Storable::class)->missingKeyCallback)($this, $key, $locale, $translation, $normalizedLocale);
+                $callbackReturnValue = (app(Storable::class)->missingKeyCallback)($this, $key, $store, $storevalue, $normalizedStore);
                 if (is_string($callbackReturnValue)) {
-                    $translation = $callbackReturnValue;
+                    $storevalue = $callbackReturnValue;
                 }
             } catch (Exception) {
                 //prevent the fallback to crash
@@ -71,73 +71,73 @@ trait HasTranslations
         }
 
         if ($this->hasGetMutator($key)) {
-            return $this->mutateAttribute($key, $translation);
+            return $this->mutateAttribute($key, $storevalue);
         }
 
-        return $translation;
+        return $storevalue;
     }
 
-    public function getStorevalueWithFallback(string $key, string $locale): mixed
+    public function getStorevalueWithFallback(string $key, string $store): mixed
     {
-        return $this->getStorevalue($key, $locale, true);
+        return $this->getStorevalue($key, $store, true);
     }
 
-    public function getStorevalueWithoutFallback(string $key, string $locale): mixed
+    public function getStorevalueWithoutFallback(string $key, string $store): mixed
     {
-        return $this->getStorevalue($key, $locale, false);
+        return $this->getStorevalue($key, $store, false);
     }
 
-    public function getStorevalues(string $key = null, array $allowedLocales = null): array
+    public function getStorevalues(string $key = null, array $allowedStores = null): array
     {
         if ($key !== null) {
             $this->guardAgainstNonStorableAttribute($key);
 
             return array_filter(
                 json_decode($this->getAttributes()[$key] ?? '' ?: '{}', true) ?: [],
-                fn ($value, $locale) => $this->filterTranslations($value, $locale, $allowedLocales),
+                fn ($value, $store) => $this->filterStorevalues($value, $store, $allowedStores),
                 ARRAY_FILTER_USE_BOTH,
             );
         }
 
-        return array_reduce($this->getStorableAttributes(), function ($result, $item) use ($allowedLocales) {
-            $result[$item] = $this->getStorevalues($item, $allowedLocales);
+        return array_reduce($this->getStorableAttributes(), function ($result, $item) use ($allowedStores) {
+            $result[$item] = $this->getStorevalues($item, $allowedStores);
 
             return $result;
         });
     }
 
-    public function setStorevalue(string $key, string $locale, $value): self
+    public function setStorevalue(string $key, string $store, $value): self
     {
         $this->guardAgainstNonStorableAttribute($key);
 
-        $translations = $this->getStorevalues($key);
+        $storevalues = $this->getStorevalues($key);
 
-        $oldValue = $translations[$locale] ?? '';
+        $oldValue = $storevalues[$store] ?? '';
 
         if ($this->hasSetMutator($key)) {
             $method = 'set'.Str::studly($key).'Attribute';
 
-            $this->{$method}($value, $locale);
+            $this->{$method}($value, $store);
 
             $value = $this->attributes[$key];
         }
 
-        $translations[$locale] = $value;
+        $storevalues[$store] = $value;
 
-        $this->attributes[$key] = $this->asJson($translations);
+        $this->attributes[$key] = $this->asJson($storevalues);
 
-        event(new TranslationHasBeenSetEvent($this, $key, $locale, $oldValue, $value));
+        event(new StorevalueHasBeenSetEvent($this, $key, $store, $oldValue, $value));
 
         return $this;
     }
 
-    public function setStorevalues(string $key, array $translations): self
+    public function setStorevalues(string $key, array $storevalues): self
     {
         $this->guardAgainstNonStorableAttribute($key);
 
-        if (! empty($translations)) {
-            foreach ($translations as $locale => $translation) {
-                $this->setStorevalue($key, $locale, $translation);
+        if (! empty($storevalues)) {
+            foreach ($storevalues as $store => $storevalue) {
+                $this->setStorevalue($key, $store, $storevalue);
             }
         } else {
             $this->attributes[$key] = $this->asJson([]);
@@ -146,16 +146,16 @@ trait HasTranslations
         return $this;
     }
 
-    public function forgetStorevalue(string $key, string $locale): self
+    public function forgetStorevalue(string $key, string $store): self
     {
-        $translations = $this->getStorevalues($key);
+        $storevalues = $this->getStorevalues($key);
 
         unset(
-            $translations[$locale],
+            $storevalues[$store],
             $this->$key
         );
 
-        $this->setStorevalues($key, $translations);
+        $this->setStorevalues($key, $storevalues);
 
         return $this;
     }
@@ -164,8 +164,8 @@ trait HasTranslations
     {
         $this->guardAgainstNonStorableAttribute($key);
 
-        collect($this->getTranslatedLocales($key))->each(function (string $locale) use ($key) {
-            $this->forgetStorevalue($key, $locale);
+        collect($this->getValuedStores($key))->each(function (string $store) use ($key) {
+            $this->forgetStorevalue($key, $store);
         });
 
         if ($asNull) {
@@ -175,16 +175,16 @@ trait HasTranslations
         return $this;
     }
 
-    public function forgetAllTranslations(string $locale): self
+    public function forgetAllTranslations(string $store): self
     {
-        collect($this->getStorableAttributes())->each(function (string $attribute) use ($locale) {
-            $this->forgetStorevalue($attribute, $locale);
+        collect($this->getStorableAttributes())->each(function (string $attribute) use ($store) {
+            $this->forgetStorevalue($attribute, $store);
         });
 
         return $this;
     }
 
-    public function getTranslatedLocales(string $key): array
+    public function getValuedStores(string $key): array
     {
         return array_keys($this->getStorevalues($key));
     }
@@ -194,20 +194,20 @@ trait HasTranslations
         return in_array($key, $this->getStorableAttributes());
     }
 
-    public function hasTranslation(string $key, string $locale = null): bool
+    public function hasTranslation(string $key, string $store = null): bool
     {
-        $locale = $locale ?: $this->getLocale();
+        $store = $store ?: $this->getLocale();
 
-        return isset($this->getStorevalues($key)[$locale]);
+        return isset($this->getStorevalues($key)[$store]);
     }
 
-    public function replaceTranslations(string $key, array $translations): self
+    public function replaceTranslations(string $key, array $storevalues): self
     {
-        foreach ($this->getTranslatedLocales($key) as $locale) {
-            $this->forgetStorevalue($key, $locale);
+        foreach ($this->getValuedStores($key) as $store) {
+            $this->forgetStorevalue($key, $store);
         }
 
-        $this->setStorevalues($key, $translations);
+        $this->setStorevalues($key, $storevalues);
 
         return $this;
     }
@@ -219,34 +219,34 @@ trait HasTranslations
         }
     }
 
-    protected function normalizeLocale(string $key, string $locale, bool $useFallbackLocale): string
+    protected function normalizeStore(string $key, string $store, bool $useFallbackStore): string
     {
-        $translatedLocales = $this->getTranslatedLocales($key);
+        $valuedStores = $this->getValuedStores($key);
 
-        if (in_array($locale, $translatedLocales)) {
-            return $locale;
+        if (in_array($store, $valuedStores)) {
+            return $store;
         }
 
-        if (! $useFallbackLocale) {
-            return $locale;
+        if (! $useFallbackStore) {
+            return $store;
         }
 
         $fallbackConfig = app(Storable::class);
 
-        $fallbackLocale = $fallbackConfig->fallbackLocale ?? config('app.fallback_locale');
+        $fallbackStore = $fallbackConfig->fallbackStore ?? config('app.fallback_locale');
 
-        if (! is_null($fallbackLocale) && in_array($fallbackLocale, $translatedLocales)) {
-            return $fallbackLocale;
+        if (! is_null($fallbackStore) && in_array($fallbackStore, $valuedStores)) {
+            return $fallbackStore;
         }
 
-        if (! empty($translatedLocales) && $fallbackConfig->fallbackAny) {
-            return $translatedLocales[0];
+        if (! empty($valuedStores) && $fallbackConfig->fallbackAny) {
+            return $valuedStores[0];
         }
 
-        return $locale;
+        return $store;
     }
 
-    protected function filterTranslations(mixed $value = null, string $locale = null, array $allowedLocales = null): bool
+    protected function filterStorevalues(mixed $value = null, string $store = null, array $allowedStores = null): bool
     {
         if ($value === null) {
             return false;
@@ -256,27 +256,27 @@ trait HasTranslations
             return false;
         }
 
-        if ($allowedLocales === null) {
+        if ($allowedStores === null) {
             return true;
         }
 
-        if (! in_array($locale, $allowedLocales)) {
+        if (! in_array($store, $allowedStores)) {
             return false;
         }
 
         return true;
     }
 
-    public function setLocale(string $locale): self
+    public function setLocale(string $store): self
     {
-        $this->translationLocale = $locale;
+        $this->storevalueStore = $store;
 
         return $this;
     }
 
     public function getLocale(): string
     {
-        return $this->translationLocale ?: config('app.locale');
+        return $this->storevalueStore ?: config('app.locale');
     }
 
     public function getStorableAttributes(): array
@@ -309,7 +309,7 @@ trait HasTranslations
     {
         return array_unique(
             array_reduce($this->getStorableAttributes(), function ($result, $item) {
-                return array_merge($result, $this->getTranslatedLocales($item));
+                return array_merge($result, $this->getValuedStores($item));
             }, [])
         );
     }

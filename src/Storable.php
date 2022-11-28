@@ -9,7 +9,7 @@ class Storable
     /*
      * If a translation has not been set for a given locale, use this locale instead.
      */
-    public ?string $fallbackLocale;
+    public ?string $fallbackStore;
 
     /*
      * If a translation has not been set for a given locale and the fallback locale,
@@ -20,11 +20,11 @@ class Storable
     public ?Closure $missingKeyCallback = null;
 
     public function fallback(
-        ?string $fallbackLocale = null,
+        ?string $fallbackStore = null,
         ?bool $fallbackAny = false,
         $missingKeyCallback = null
     ): self {
-        $this->fallbackLocale = $fallbackLocale;
+        $this->fallbackStore = $fallbackStore;
         $this->fallbackAny = $fallbackAny;
         $this->missingKeyCallback = $missingKeyCallback;
 

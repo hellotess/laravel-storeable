@@ -12,7 +12,7 @@ beforeEach(function () {
 it('will return package fallback locale translation when getting an unknown locale', function () {
     config()->set('app.fallback_locale', 'nl');
     Storable::fallback(
-        fallbackLocale: 'en',
+        fallbackStore: 'en',
     );
 
     $this->testModel->setStorevalue('name', 'en', 'testValue_en');
@@ -51,7 +51,7 @@ it('will return fallback locale translation when getting an unknown locale and f
 it('will execute callback fallback when getting an unknown locale and fallback callback is enabled', function () {
     Storage::fake();
 
-    Storable::fallback(missingKeyCallback: function ($model, string $translationKey, string $locale) {
+    Storable::fallback(missingKeyCallback: function ($model, string $storevalueKey, string $store) {
         //something assertable outside the closure
         Storage::put("test.txt", "test");
     });
@@ -65,7 +65,7 @@ it('will execute callback fallback when getting an unknown locale and fallback c
 });
 
 it('will use callback fallback return value as translation', function () {
-    Storable::fallback(missingKeyCallback: function ($model, string $translationKey, string $locale) {
+    Storable::fallback(missingKeyCallback: function ($model, string $storevalueKey, string $store) {
         return "testValue_fallback_callback";
     });
 
@@ -76,7 +76,7 @@ it('will use callback fallback return value as translation', function () {
 });
 
 it('wont use callback fallback return value as translation if it is not a string', function () {
-    Storable::fallback(missingKeyCallback: function ($model, string $translationKey, string $locale) {
+    Storable::fallback(missingKeyCallback: function ($model, string $storevalueKey, string $store) {
         return 123456;
     });
 
@@ -89,7 +89,7 @@ it('wont use callback fallback return value as translation if it is not a string
 it('wont execute callback fallback when getting an existing translation', function () {
     Storage::fake();
 
-    Storable::fallback(missingKeyCallback: function ($model, string $translationKey, string $locale) {
+    Storable::fallback(missingKeyCallback: function ($model, string $storevalueKey, string $store) {
         //something assertable outside the closure
         Storage::put("test.txt", "test");
     });
@@ -103,7 +103,7 @@ it('wont execute callback fallback when getting an existing translation', functi
 });
 
 it('wont fail if callback fallback throw exception', function () {
-    Storable::fallback(missingKeyCallback: function ($model, string $translationKey, string $locale) {
+    Storable::fallback(missingKeyCallback: function ($model, string $storevalueKey, string $store) {
         throw new \Exception();
     });
 
@@ -117,7 +117,7 @@ it('will return an empty string when getting an unknown locale and fallback is n
     config()->set('app.fallback_locale', '');
 
     Storable::fallback(
-        fallbackLocale: '',
+        fallbackStore: '',
     );
 
     $this->testModel->setStorevalue('name', 'en', 'testValue_en');
@@ -130,7 +130,7 @@ it('will return an empty string when getting an unknown locale and fallback is e
     config()->set('app.fallback_locale', '');
 
     Storable::fallback(
-        fallbackLocale: '',
+        fallbackStore: '',
     );
 
     $this->testModel->setStorevalue('name', 'en', 'testValue_en');
@@ -244,7 +244,7 @@ it('can get the locales which have a translation', function () {
     $this->testModel->setStorevalue('name', 'fr', 'testValue_fr');
     $this->testModel->save();
 
-    expect($this->testModel->getTranslatedLocales('name'))->toBe(['en', 'fr']);
+    expect($this->testModel->getValuedStores('name'))->toBe(['en', 'fr']);
 });
 
 it('can forget a translation', function () {
@@ -428,12 +428,12 @@ it('can set translations for default language', function () {
 });
 
 it('can set multiple translations at once', function () {
-    $translations = ['nl' => 'hallo', 'en' => 'hello', 'kh' => 'សួរស្តី'];
+    $storevalues = ['nl' => 'hallo', 'en' => 'hello', 'kh' => 'សួរស្តី'];
 
-    $this->testModel->setStorevalues('name', $translations);
+    $this->testModel->setStorevalues('name', $storevalues);
     $this->testModel->save();
 
-    expect($this->testModel->getStorevalues('name'))->toEqual($translations);
+    expect($this->testModel->getStorevalues('name'))->toEqual($storevalues);
 });
 
 it('can check if an attribute is storable', function () {
@@ -474,13 +474,13 @@ it('can set multiple translations when a mutator is defined', function () {
         }
     });
 
-    $translations = [
+    $storevalues = [
         'nl' => 'hallo',
         'en' => 'hello',
         'kh' => 'សួរស្តី',
     ];
 
-    $testModel->setStorevalues('name', $translations);
+    $testModel->setStorevalues('name', $storevalues);
 
     $testModel->save();
 
@@ -494,23 +494,23 @@ it('can set multiple translations when a mutator is defined', function () {
 });
 
 it('can set multiple translations on field when a mutator is defined', function () {
-    $translations = [
+    $storevalues = [
         'nl' => 'hallo',
         'en' => 'hello',
     ];
 
     $testModel = $this->testModel;
-    $testModel->field_with_mutator = $translations;
+    $testModel->field_with_mutator = $storevalues;
     $testModel->save();
 
-    expect($testModel->getStorevalues('field_with_mutator'))->toEqual($translations);
+    expect($testModel->getStorevalues('field_with_mutator'))->toEqual($storevalues);
 });
 
 it('can translate a field based on the translations of another one', function () {
     $testModel = (new class () extends TestModel {
-        public function setOtherFieldAttribute($value, $locale = 'en')
+        public function setOtherFieldAttribute($value, $store = 'en')
         {
-            $this->attributes['other_field'] = $value . ' ' . $this->getStorevalue('name', $locale);
+            $this->attributes['other_field'] = $value . ' ' . $this->getStorevalue('name', $store);
         }
     });
 
@@ -549,10 +549,10 @@ it('handle null value from database', function () {
 });
 
 it('can get all translations', function () {
-    $translations = ['nl' => 'hallo', 'en' => 'hello'];
+    $storevalues = ['nl' => 'hallo', 'en' => 'hello'];
 
-    $this->testModel->setStorevalues('name', $translations);
-    $this->testModel->setStorevalues('field_with_mutator', $translations);
+    $this->testModel->setStorevalues('name', $storevalues);
+    $this->testModel->setStorevalues('field_with_mutator', $storevalues);
     $this->testModel->save();
 
     $this->assertEquals([
@@ -628,9 +628,9 @@ it('can set and fetch attributes based on set locale', function () {
 });
 
 it('can replace translations', function () {
-    $translations = ['nl' => 'hallo', 'en' => 'hello', 'kh' => 'សួរស្តី'];
+    $storevalues = ['nl' => 'hallo', 'en' => 'hello', 'kh' => 'សួរស្តី'];
 
-    $this->testModel->setStorevalues('name', $translations);
+    $this->testModel->setStorevalues('name', $storevalues);
     $this->testModel->save();
 
     $newTranslations = ['es' => 'hola'];
