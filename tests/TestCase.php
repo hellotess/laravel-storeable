@@ -1,11 +1,11 @@
 <?php
 
-namespace Hellotess\Translatable\Test;
+namespace Hellotess\Storable\Test;
 
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 use Orchestra\Testbench\TestCase as Orchestra;
-use Hellotess\Translatable\TranslatableServiceProvider;
+use Hellotess\Storable\StorableServiceProvider;
 
 abstract class TestCase extends Orchestra
 {
@@ -18,7 +18,7 @@ abstract class TestCase extends Orchestra
 
     protected function getPackageProviders($app)
     {
-        return [TranslatableServiceProvider::class];
+        return [StorableServiceProvider::class];
     }
 
     protected function setUpDatabase()

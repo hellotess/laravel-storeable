@@ -1,12 +1,12 @@
 <?php
 
-namespace Hellotess\Translatable;
+namespace Hellotess\Storable;
 
 use Exception;
 use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Support\Str;
-use Hellotess\Translatable\Events\TranslationHasBeenSetEvent;
-use Hellotess\Translatable\Exceptions\AttributeIsNotTranslatable;
+use Hellotess\Storable\Events\TranslationHasBeenSetEvent;
+use Hellotess\Storable\Exceptions\AttributeIsNotStorable;
 
 trait HasTranslations
 {
@@ -19,7 +19,7 @@ trait HasTranslations
 
     public function getAttributeValue($key): mixed
     {
-        if (! $this->isTranslatableAttribute($key)) {
+        if (! $this->isStorableAttribute($key)) {
             return parent::getAttributeValue($key);
         }
 
@@ -28,16 +28,16 @@ trait HasTranslations
 
     public function setAttribute($key, $value)
     {
-        if ($this->isTranslatableAttribute($key) && is_array($value)) {
+        if ($this->isStorableAttribute($key) && is_array($value)) {
             return $this->setTranslations($key, $value);
         }
 
-        // Pass arrays and untranslatable attributes to the parent method.
-        if (! $this->isTranslatableAttribute($key) || is_array($value)) {
+        // Pass arrays and unstorable attributes to the parent method.
+        if (! $this->isStorableAttribute($key) || is_array($value)) {
             return parent::setAttribute($key, $value);
         }
 
-        // If the attribute is translatable and not already translated, set a
+        // If the attribute is storable and not already translated, set a
         // translation for the current app locale.
         return $this->setTranslation($key, $this->getLocale(), $value);
     }
@@ -57,11 +57,11 @@ trait HasTranslations
 
         $translation = $translations[$normalizedLocale] ?? '';
 
-        $translatableConfig = app(Translatable::class);
+        $storableConfig = app(Storable::class);
 
-        if ($isKeyMissingFromLocale && $translatableConfig->missingKeyCallback) {
+        if ($isKeyMissingFromLocale && $storableConfig->missingKeyCallback) {
             try {
-                $callbackReturnValue = (app(Translatable::class)->missingKeyCallback)($this, $key, $locale, $translation, $normalizedLocale);
+                $callbackReturnValue = (app(Storable::class)->missingKeyCallback)($this, $key, $locale, $translation, $normalizedLocale);
                 if (is_string($callbackReturnValue)) {
                     $translation = $callbackReturnValue;
                 }
@@ -90,7 +90,7 @@ trait HasTranslations
     public function getTranslations(string $key = null, array $allowedLocales = null): array
     {
         if ($key !== null) {
-            $this->guardAgainstNonTranslatableAttribute($key);
+            $this->guardAgainstNonStorableAttribute($key);
 
             return array_filter(
                 json_decode($this->getAttributes()[$key] ?? '' ?: '{}', true) ?: [],
@@ -99,7 +99,7 @@ trait HasTranslations
             );
         }
 
-        return array_reduce($this->getTranslatableAttributes(), function ($result, $item) use ($allowedLocales) {
+        return array_reduce($this->getStorableAttributes(), function ($result, $item) use ($allowedLocales) {
             $result[$item] = $this->getTranslations($item, $allowedLocales);
 
             return $result;
@@ -108,7 +108,7 @@ trait HasTranslations
 
     public function setTranslation(string $key, string $locale, $value): self
     {
-        $this->guardAgainstNonTranslatableAttribute($key);
+        $this->guardAgainstNonStorableAttribute($key);
 
         $translations = $this->getTranslations($key);
 
@@ -133,7 +133,7 @@ trait HasTranslations
 
     public function setTranslations(string $key, array $translations): self
     {
-        $this->guardAgainstNonTranslatableAttribute($key);
+        $this->guardAgainstNonStorableAttribute($key);
 
         if (! empty($translations)) {
             foreach ($translations as $locale => $translation) {
@@ -162,7 +162,7 @@ trait HasTranslations
 
     public function forgetTranslations(string $key, bool $asNull = false): self
     {
-        $this->guardAgainstNonTranslatableAttribute($key);
+        $this->guardAgainstNonStorableAttribute($key);
 
         collect($this->getTranslatedLocales($key))->each(function (string $locale) use ($key) {
             $this->forgetTranslation($key, $locale);
@@ -177,7 +177,7 @@ trait HasTranslations
 
     public function forgetAllTranslations(string $locale): self
     {
-        collect($this->getTranslatableAttributes())->each(function (string $attribute) use ($locale) {
+        collect($this->getStorableAttributes())->each(function (string $attribute) use ($locale) {
             $this->forgetTranslation($attribute, $locale);
         });
 
@@ -189,9 +189,9 @@ trait HasTranslations
         return array_keys($this->getTranslations($key));
     }
 
-    public function isTranslatableAttribute(string $key): bool
+    public function isStorableAttribute(string $key): bool
     {
-        return in_array($key, $this->getTranslatableAttributes());
+        return in_array($key, $this->getStorableAttributes());
     }
 
     public function hasTranslation(string $key, string $locale = null): bool
@@ -212,10 +212,10 @@ trait HasTranslations
         return $this;
     }
 
-    protected function guardAgainstNonTranslatableAttribute(string $key): void
+    protected function guardAgainstNonStorableAttribute(string $key): void
     {
-        if (! $this->isTranslatableAttribute($key)) {
-            throw AttributeIsNotTranslatable::make($key, $this);
+        if (! $this->isStorableAttribute($key)) {
+            throw AttributeIsNotStorable::make($key, $this);
         }
     }
 
@@ -231,7 +231,7 @@ trait HasTranslations
             return $locale;
         }
 
-        $fallbackConfig = app(Translatable::class);
+        $fallbackConfig = app(Storable::class);
 
         $fallbackLocale = $fallbackConfig->fallbackLocale ?? config('app.fallback_locale');
 
@@ -279,17 +279,17 @@ trait HasTranslations
         return $this->translationLocale ?: config('app.locale');
     }
 
-    public function getTranslatableAttributes(): array
+    public function getStorableAttributes(): array
     {
-        return is_array($this->translatable)
-            ? $this->translatable
+        return is_array($this->storable)
+            ? $this->storable
             : [];
     }
 
     public function translations(): Attribute
     {
         return Attribute::get(function () {
-            return collect($this->getTranslatableAttributes())
+            return collect($this->getStorableAttributes())
                 ->mapWithKeys(function (string $key) {
                     return [$key => $this->getTranslations($key)];
                 })
@@ -301,14 +301,14 @@ trait HasTranslations
     {
         return array_merge(
             parent::getCasts(),
-            array_fill_keys($this->getTranslatableAttributes(), 'array'),
+            array_fill_keys($this->getStorableAttributes(), 'array'),
         );
     }
 
     public function locales(): array
     {
         return array_unique(
-            array_reduce($this->getTranslatableAttributes(), function ($result, $item) {
+            array_reduce($this->getStorableAttributes(), function ($result, $item) {
                 return array_merge($result, $this->getTranslatedLocales($item));
             }, [])
         );

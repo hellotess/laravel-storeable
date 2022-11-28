@@ -1,9 +1,9 @@
 <?php
 
 use Illuminate\Support\Facades\Storage;
-use Hellotess\Translatable\Exceptions\AttributeIsNotTranslatable;
-use Hellotess\Translatable\Facades\Translatable;
-use Hellotess\Translatable\Test\TestSupport\TestModel;
+use Hellotess\Storable\Exceptions\AttributeIsNotStorable;
+use Hellotess\Storable\Facades\Storable;
+use Hellotess\Storable\Test\TestSupport\TestModel;
 
 beforeEach(function () {
     $this->testModel = new TestModel();
@@ -11,7 +11,7 @@ beforeEach(function () {
 
 it('will return package fallback locale translation when getting an unknown locale', function () {
     config()->set('app.fallback_locale', 'nl');
-    Translatable::fallback(
+    Storable::fallback(
         fallbackLocale: 'en',
     );
 
@@ -51,7 +51,7 @@ it('will return fallback locale translation when getting an unknown locale and f
 it('will execute callback fallback when getting an unknown locale and fallback callback is enabled', function () {
     Storage::fake();
 
-    Translatable::fallback(missingKeyCallback: function ($model, string $translationKey, string $locale) {
+    Storable::fallback(missingKeyCallback: function ($model, string $translationKey, string $locale) {
         //something assertable outside the closure
         Storage::put("test.txt", "test");
     });
@@ -65,7 +65,7 @@ it('will execute callback fallback when getting an unknown locale and fallback c
 });
 
 it('will use callback fallback return value as translation', function () {
-    Translatable::fallback(missingKeyCallback: function ($model, string $translationKey, string $locale) {
+    Storable::fallback(missingKeyCallback: function ($model, string $translationKey, string $locale) {
         return "testValue_fallback_callback";
     });
 
@@ -76,7 +76,7 @@ it('will use callback fallback return value as translation', function () {
 });
 
 it('wont use callback fallback return value as translation if it is not a string', function () {
-    Translatable::fallback(missingKeyCallback: function ($model, string $translationKey, string $locale) {
+    Storable::fallback(missingKeyCallback: function ($model, string $translationKey, string $locale) {
         return 123456;
     });
 
@@ -89,7 +89,7 @@ it('wont use callback fallback return value as translation if it is not a string
 it('wont execute callback fallback when getting an existing translation', function () {
     Storage::fake();
 
-    Translatable::fallback(missingKeyCallback: function ($model, string $translationKey, string $locale) {
+    Storable::fallback(missingKeyCallback: function ($model, string $translationKey, string $locale) {
         //something assertable outside the closure
         Storage::put("test.txt", "test");
     });
@@ -103,7 +103,7 @@ it('wont execute callback fallback when getting an existing translation', functi
 });
 
 it('wont fail if callback fallback throw exception', function () {
-    Translatable::fallback(missingKeyCallback: function ($model, string $translationKey, string $locale) {
+    Storable::fallback(missingKeyCallback: function ($model, string $translationKey, string $locale) {
         throw new \Exception();
     });
 
@@ -116,7 +116,7 @@ it('wont fail if callback fallback throw exception', function () {
 it('will return an empty string when getting an unknown locale and fallback is not set', function () {
     config()->set('app.fallback_locale', '');
 
-    Translatable::fallback(
+    Storable::fallback(
         fallbackLocale: '',
     );
 
@@ -129,7 +129,7 @@ it('will return an empty string when getting an unknown locale and fallback is n
 it('will return an empty string when getting an unknown locale and fallback is empty', function () {
     config()->set('app.fallback_locale', '');
 
-    Translatable::fallback(
+    Storable::fallback(
         fallbackLocale: '',
     );
 
@@ -194,7 +194,7 @@ it('can get specified translations in one go', function () {
     ], $this->testModel->getTranslations('name', ['en']));
 });
 
-it('can get all translations for all translatable attributes in one go', function () {
+it('can get all translations for all storable attributes in one go', function () {
     $this->testModel->setTranslation('name', 'en', 'testValue_en');
     $this->testModel->setTranslation('name', 'fr', 'testValue_fr');
 
@@ -221,7 +221,7 @@ it('can get all translations for all translatable attributes in one go', functio
     ], $this->testModel->getTranslations());
 });
 
-it('can get specified translations for all translatable attributes in one go', function () {
+it('can get specified translations for all storable attributes in one go', function () {
     $this->testModel->setTranslation('name', 'en', 'testValue_en');
     $this->testModel->setTranslation('name', 'fr', 'testValue_fr');
 
@@ -364,13 +364,13 @@ it('can forget all translations', function () {
     ], $this->testModel->getTranslations('field_with_mutator'));
 });
 
-it('will throw an exception when trying to translate an untranslatable attribute', function () {
-    $this->expectException(AttributeIsNotTranslatable::class);
+it('will throw an exception when trying to translate an unstorable attribute', function () {
+    $this->expectException(AttributeIsNotStorable::class);
 
     $this->testModel->setTranslation('untranslated', 'en', 'value');
 });
 
-it('is compatible with accessors on non translatable attributes', function () {
+it('is compatible with accessors on non storable attributes', function () {
     $testModel = new class () extends TestModel {
         public function getOtherFieldAttribute(): string
         {
@@ -436,10 +436,10 @@ it('can set multiple translations at once', function () {
     expect($this->testModel->getTranslations('name'))->toEqual($translations);
 });
 
-it('can check if an attribute is translatable', function () {
-    expect($this->testModel->isTranslatableAttribute('name'))->toBeTrue();
+it('can check if an attribute is storable', function () {
+    expect($this->testModel->isStorableAttribute('name'))->toBeTrue();
 
-    expect($this->testModel->isTranslatableAttribute('other'))->toBeFalse();
+    expect($this->testModel->isStorableAttribute('other'))->toBeFalse();
 });
 
 it('can check if an attribute has translation', function () {
@@ -642,7 +642,7 @@ it('can replace translations', function () {
 it('can use any locale if given locale not set', function () {
     config()->set('app.fallback_locale', 'en');
 
-    Translatable::fallback(
+    Storable::fallback(
         fallbackAny: true,
     );
 
@@ -657,7 +657,7 @@ it('can use any locale if given locale not set', function () {
 it('will return set translation when fallback any set', function () {
     config()->set('app.fallback_locale', 'en');
 
-    Translatable::fallback(
+    Storable::fallback(
         fallbackAny: true,
     );
 
@@ -672,7 +672,7 @@ it('will return set translation when fallback any set', function () {
 it('will return fallback translation when fallback any set', function () {
     config()->set('app.fallback_locale', 'en');
 
-    Translatable::fallback(
+    Storable::fallback(
         fallbackAny: true,
     );
 
@@ -687,7 +687,7 @@ it('will return fallback translation when fallback any set', function () {
 it('provides a flog to not return any translation when getting an unknown locale', function () {
     config()->set('app.fallback_locale', 'en');
 
-    Translatable::fallback(
+    Storable::fallback(
         fallbackAny: true,
     );
 
@@ -702,7 +702,7 @@ it('provides a flog to not return any translation when getting an unknown locale
 it('will return default fallback locale translation when getting an unknown locale with fallback any', function () {
     config()->set('app.fallback_locale', 'en');
 
-    Translatable::fallback(
+    Storable::fallback(
         fallbackAny: true,
     );
 

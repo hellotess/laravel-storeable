@@ -1,6 +1,6 @@
 <?php
 
-namespace Hellotess\Translatable\Events;
+namespace Hellotess\Storable\Events;
 
 class TranslationHasBeenSetEvent
 {

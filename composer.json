@@ -23,12 +23,12 @@
     },
     "autoload": {
         "psr-4": {
-            "Hellotess\\Translatable\\": "src"
+            "Hellotess\\Storable\\": "src"
         }
     },
     "autoload-dev": {
         "psr-4": {
-            "Hellotess\\Translatable\\Test\\": "tests"
+            "Hellotess\\Storable\\Test\\": "tests"
         }
     },
     "scripts": {

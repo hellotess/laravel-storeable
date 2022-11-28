@@ -1,8 +1,8 @@
 <?php
 
 use Illuminate\Support\Facades\Event;
-use Hellotess\Translatable\Events\TranslationHasBeenSetEvent;
-use Hellotess\Translatable\Test\TestSupport\TestModel;
+use Hellotess\Storable\Events\TranslationHasBeenSetEvent;
+use Hellotess\Storable\Test\TestSupport\TestModel;
 
 beforeEach(function () {
     Event::fake();

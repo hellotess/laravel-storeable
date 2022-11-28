@@ -1,10 +1,10 @@
 <?php
 
-namespace Hellotess\Translatable;
+namespace Hellotess\Storable;
 
 use Closure;
 
-class Translatable
+class Storable
 {
     /*
      * If a translation has not been set for a given locale, use this locale instead.

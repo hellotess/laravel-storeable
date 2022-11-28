@@ -1,9 +1,9 @@
 <?php
 
-namespace Hellotess\Translatable\Test\TestSupport;
+namespace Hellotess\Storable\Test\TestSupport;
 
 use Illuminate\Database\Eloquent\Model;
-use Hellotess\Translatable\HasTranslations;
+use Hellotess\Storable\HasTranslations;
 
 class TestModel extends Model
 {
@@ -14,7 +14,7 @@ class TestModel extends Model
     protected $guarded = [];
     public $timestamps = false;
 
-    public $translatable = ['name', 'other_field', 'field_with_mutator'];
+    public $storable = ['name', 'other_field', 'field_with_mutator'];
 
     public function setFieldWithMutatorAttribute($value)
     {

@@ -1,5 +1,5 @@
 <?php
 
-use Hellotess\Translatable\Test\TestCase;
+use Hellotess\Storable\Test\TestCase;
 
 uses(TestCase::class)->in(__DIR__);
