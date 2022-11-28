@@ -1,6 +1,6 @@
 <?php
 
-namespace Spatie\Translatable\Events;
+namespace Hellotess\Translatable\Events;
 
 class TranslationHasBeenSetEvent
 {

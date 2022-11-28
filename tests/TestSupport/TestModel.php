@@ -1,9 +1,9 @@
 <?php
 
-namespace Spatie\Translatable\Test\TestSupport;
+namespace Hellotess\Translatable\Test\TestSupport;
 
 use Illuminate\Database\Eloquent\Model;
-use Spatie\Translatable\HasTranslations;
+use Hellotess\Translatable\HasTranslations;
 
 class TestModel extends Model
 {

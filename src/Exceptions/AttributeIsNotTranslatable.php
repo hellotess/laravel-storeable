@@ -1,6 +1,6 @@
 <?php
 
-namespace Spatie\Translatable\Exceptions;
+namespace Hellotess\Translatable\Exceptions;
 
 use Exception;
 

@@ -1,11 +1,11 @@
 <?php
 
-namespace Spatie\Translatable\Facades;
+namespace Hellotess\Translatable\Facades;
 
 use Illuminate\Support\Facades\Facade;
 
 /**
- * @see \Spatie\Translatable\Translatable
+ * @see \Hellotess\Translatable\Translatable
  */
 class Translatable extends Facade
 {

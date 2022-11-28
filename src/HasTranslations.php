@@ -1,12 +1,12 @@
 <?php
 
-namespace Spatie\Translatable;
+namespace Hellotess\Translatable;
 
 use Exception;
 use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Support\Str;
-use Spatie\Translatable\Events\TranslationHasBeenSetEvent;
-use Spatie\Translatable\Exceptions\AttributeIsNotTranslatable;
+use Hellotess\Translatable\Events\TranslationHasBeenSetEvent;
+use Hellotess\Translatable\Exceptions\AttributeIsNotTranslatable;
 
 trait HasTranslations
 {

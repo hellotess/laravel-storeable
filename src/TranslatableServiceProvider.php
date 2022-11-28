@@ -1,6 +1,6 @@
 <?php
 
-namespace Spatie\Translatable;
+namespace Hellotess\Translatable;
 
 use Spatie\LaravelPackageTools\Package;
 use Spatie\LaravelPackageTools\PackageServiceProvider;
