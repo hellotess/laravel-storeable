@@ -23,7 +23,7 @@ trait HasTranslations
             return parent::getAttributeValue($key);
         }
 
-        return $this->getTranslation($key, $this->getLocale());
+        return $this->getStorevalue($key, $this->getLocale());
     }
 
     public function setAttribute($key, $value)
@@ -44,16 +44,16 @@ trait HasTranslations
 
     public function translate(string $key, string $locale = '', bool $useFallbackLocale = true): mixed
     {
-        return $this->getTranslation($key, $locale, $useFallbackLocale);
+        return $this->getStorevalue($key, $locale, $useFallbackLocale);
     }
 
-    public function getTranslation(string $key, string $locale, bool $useFallbackLocale = true): mixed
+    public function getStorevalue(string $key, string $locale, bool $useFallbackLocale = true): mixed
     {
         $normalizedLocale = $this->normalizeLocale($key, $locale, $useFallbackLocale);
 
         $isKeyMissingFromLocale = ($locale !== $normalizedLocale);
 
-        $translations = $this->getTranslations($key);
+        $translations = $this->getStorevalues($key);
 
         $translation = $translations[$normalizedLocale] ?? '';
 
@@ -77,17 +77,17 @@ trait HasTranslations
         return $translation;
     }
 
-    public function getTranslationWithFallback(string $key, string $locale): mixed
+    public function getStorevalueWithFallback(string $key, string $locale): mixed
     {
-        return $this->getTranslation($key, $locale, true);
+        return $this->getStorevalue($key, $locale, true);
     }
 
-    public function getTranslationWithoutFallback(string $key, string $locale): mixed
+    public function getStorevalueWithoutFallback(string $key, string $locale): mixed
     {
-        return $this->getTranslation($key, $locale, false);
+        return $this->getStorevalue($key, $locale, false);
     }
 
-    public function getTranslations(string $key = null, array $allowedLocales = null): array
+    public function getStorevalues(string $key = null, array $allowedLocales = null): array
     {
         if ($key !== null) {
             $this->guardAgainstNonStorableAttribute($key);
@@ -100,7 +100,7 @@ trait HasTranslations
         }
 
         return array_reduce($this->getStorableAttributes(), function ($result, $item) use ($allowedLocales) {
-            $result[$item] = $this->getTranslations($item, $allowedLocales);
+            $result[$item] = $this->getStorevalues($item, $allowedLocales);
 
             return $result;
         });
@@ -110,7 +110,7 @@ trait HasTranslations
     {
         $this->guardAgainstNonStorableAttribute($key);
 
-        $translations = $this->getTranslations($key);
+        $translations = $this->getStorevalues($key);
 
         $oldValue = $translations[$locale] ?? '';
 
@@ -146,9 +146,9 @@ trait HasTranslations
         return $this;
     }
 
-    public function forgetTranslation(string $key, string $locale): self
+    public function forgetStorevalue(string $key, string $locale): self
     {
-        $translations = $this->getTranslations($key);
+        $translations = $this->getStorevalues($key);
 
         unset(
             $translations[$locale],
@@ -160,12 +160,12 @@ trait HasTranslations
         return $this;
     }
 
-    public function forgetTranslations(string $key, bool $asNull = false): self
+    public function forgetStorevalues(string $key, bool $asNull = false): self
     {
         $this->guardAgainstNonStorableAttribute($key);
 
         collect($this->getTranslatedLocales($key))->each(function (string $locale) use ($key) {
-            $this->forgetTranslation($key, $locale);
+            $this->forgetStorevalue($key, $locale);
         });
 
         if ($asNull) {
@@ -178,7 +178,7 @@ trait HasTranslations
     public function forgetAllTranslations(string $locale): self
     {
         collect($this->getStorableAttributes())->each(function (string $attribute) use ($locale) {
-            $this->forgetTranslation($attribute, $locale);
+            $this->forgetStorevalue($attribute, $locale);
         });
 
         return $this;
@@ -186,7 +186,7 @@ trait HasTranslations
 
     public function getTranslatedLocales(string $key): array
     {
-        return array_keys($this->getTranslations($key));
+        return array_keys($this->getStorevalues($key));
     }
 
     public function isStorableAttribute(string $key): bool
@@ -198,13 +198,13 @@ trait HasTranslations
     {
         $locale = $locale ?: $this->getLocale();
 
-        return isset($this->getTranslations($key)[$locale]);
+        return isset($this->getStorevalues($key)[$locale]);
     }
 
     public function replaceTranslations(string $key, array $translations): self
     {
         foreach ($this->getTranslatedLocales($key) as $locale) {
-            $this->forgetTranslation($key, $locale);
+            $this->forgetStorevalue($key, $locale);
         }
 
         $this->setStorevalues($key, $translations);
@@ -291,7 +291,7 @@ trait HasTranslations
         return Attribute::get(function () {
             return collect($this->getStorableAttributes())
                 ->mapWithKeys(function (string $key) {
-                    return [$key => $this->getTranslations($key)];
+                    return [$key => $this->getStorevalues($key)];
                 })
                 ->toArray();
         });
