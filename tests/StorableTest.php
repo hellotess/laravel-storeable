@@ -15,7 +15,7 @@ it('will return package fallback locale translation when getting an unknown loca
         fallbackLocale: 'en',
     );
 
-    $this->testModel->setTranslation('name', 'en', 'testValue_en');
+    $this->testModel->setStorevalue('name', 'en', 'testValue_en');
     $this->testModel->save();
 
     expect($this->testModel->getTranslation('name', 'fr'))->toBe('testValue_en');
@@ -24,7 +24,7 @@ it('will return package fallback locale translation when getting an unknown loca
 it('will return default fallback locale translation when getting an unknown locale', function () {
     config()->set('app.fallback_locale', 'en');
 
-    $this->testModel->setTranslation('name', 'en', 'testValue_en');
+    $this->testModel->setStorevalue('name', 'en', 'testValue_en');
     $this->testModel->save();
 
     expect($this->testModel->getTranslation('name', 'fr'))->toBe('testValue_en');
@@ -33,7 +33,7 @@ it('will return default fallback locale translation when getting an unknown loca
 it('provides a flog to not return fallback locale translation when getting an unknown locale', function () {
     config()->set('app.fallback_locale', 'en');
 
-    $this->testModel->setTranslation('name', 'en', 'testValue_en');
+    $this->testModel->setStorevalue('name', 'en', 'testValue_en');
     $this->testModel->save();
 
     expect($this->testModel->getTranslation('name', 'fr', false))->toBe('');
@@ -42,7 +42,7 @@ it('provides a flog to not return fallback locale translation when getting an un
 it('will return fallback locale translation when getting an unknown locale and fallback is true', function () {
     config()->set('app.fallback_locale', 'en');
 
-    $this->testModel->setTranslation('name', 'en', 'testValue_en');
+    $this->testModel->setStorevalue('name', 'en', 'testValue_en');
     $this->testModel->save();
 
     expect($this->testModel->getTranslationWithFallback('name', 'fr'))->toBe('testValue_en');
@@ -56,7 +56,7 @@ it('will execute callback fallback when getting an unknown locale and fallback c
         Storage::put("test.txt", "test");
     });
 
-    $this->testModel->setTranslation('name', 'en', 'testValue_en');
+    $this->testModel->setStorevalue('name', 'en', 'testValue_en');
     $this->testModel->save();
 
     expect($this->testModel->getTranslationWithFallback('name', 'fr'))->toBe('testValue_en');
@@ -69,7 +69,7 @@ it('will use callback fallback return value as translation', function () {
         return "testValue_fallback_callback";
     });
 
-    $this->testModel->setTranslation('name', 'en', 'testValue_en');
+    $this->testModel->setStorevalue('name', 'en', 'testValue_en');
     $this->testModel->save();
 
     expect($this->testModel->getTranslationWithFallback('name', 'fr'))->toBe('testValue_fallback_callback');
@@ -80,7 +80,7 @@ it('wont use callback fallback return value as translation if it is not a string
         return 123456;
     });
 
-    $this->testModel->setTranslation('name', 'en', 'testValue_en');
+    $this->testModel->setStorevalue('name', 'en', 'testValue_en');
     $this->testModel->save();
 
     expect($this->testModel->getTranslationWithFallback('name', 'fr'))->toBe('testValue_en');
@@ -94,7 +94,7 @@ it('wont execute callback fallback when getting an existing translation', functi
         Storage::put("test.txt", "test");
     });
 
-    $this->testModel->setTranslation('name', 'en', 'testValue_en');
+    $this->testModel->setStorevalue('name', 'en', 'testValue_en');
     $this->testModel->save();
 
     expect($this->testModel->getTranslationWithFallback('name', 'en'))->toBe('testValue_en');
@@ -107,7 +107,7 @@ it('wont fail if callback fallback throw exception', function () {
         throw new \Exception();
     });
 
-    $this->testModel->setTranslation('name', 'en', 'testValue_en');
+    $this->testModel->setStorevalue('name', 'en', 'testValue_en');
     $this->testModel->save();
 
     expect($this->testModel->getTranslationWithFallback('name', 'fr'))->toBe('testValue_en');
@@ -120,7 +120,7 @@ it('will return an empty string when getting an unknown locale and fallback is n
         fallbackLocale: '',
     );
 
-    $this->testModel->setTranslation('name', 'en', 'testValue_en');
+    $this->testModel->setStorevalue('name', 'en', 'testValue_en');
     $this->testModel->save();
 
     expect($this->testModel->getTranslationWithoutFallback('name', 'fr'))->toBe('');
@@ -133,14 +133,14 @@ it('will return an empty string when getting an unknown locale and fallback is e
         fallbackLocale: '',
     );
 
-    $this->testModel->setTranslation('name', 'en', 'testValue_en');
+    $this->testModel->setStorevalue('name', 'en', 'testValue_en');
     $this->testModel->save();
 
     expect($this->testModel->getTranslation('name', 'fr'))->toBe('');
 });
 
 it('can save a translated attribute', function () {
-    $this->testModel->setTranslation('name', 'en', 'testValue_en');
+    $this->testModel->setStorevalue('name', 'en', 'testValue_en');
     $this->testModel->save();
 
     expect($this->testModel->name)->toBe('testValue_en');
@@ -155,8 +155,8 @@ it('can set translated values when creating a model', function () {
 });
 
 it('can save multiple translations', function () {
-    $this->testModel->setTranslation('name', 'en', 'testValue_en');
-    $this->testModel->setTranslation('name', 'fr', 'testValue_fr');
+    $this->testModel->setStorevalue('name', 'en', 'testValue_en');
+    $this->testModel->setStorevalue('name', 'fr', 'testValue_fr');
     $this->testModel->save();
 
     expect($this->testModel->name)->toBe('testValue_en');
@@ -164,8 +164,8 @@ it('can save multiple translations', function () {
 });
 
 it('will return the value of the current locale when using the property', function () {
-    $this->testModel->setTranslation('name', 'en', 'testValue');
-    $this->testModel->setTranslation('name', 'fr', 'testValue_fr');
+    $this->testModel->setStorevalue('name', 'en', 'testValue');
+    $this->testModel->setStorevalue('name', 'fr', 'testValue_fr');
     $this->testModel->save();
 
     app()->setLocale('fr');
@@ -174,8 +174,8 @@ it('will return the value of the current locale when using the property', functi
 });
 
 it('can get all translations in one go', function () {
-    $this->testModel->setTranslation('name', 'en', 'testValue_en');
-    $this->testModel->setTranslation('name', 'fr', 'testValue_fr');
+    $this->testModel->setStorevalue('name', 'en', 'testValue_en');
+    $this->testModel->setStorevalue('name', 'fr', 'testValue_fr');
     $this->testModel->save();
 
     $this->assertSame([
@@ -185,8 +185,8 @@ it('can get all translations in one go', function () {
 });
 
 it('can get specified translations in one go', function () {
-    $this->testModel->setTranslation('name', 'en', 'testValue_en');
-    $this->testModel->setTranslation('name', 'fr', 'testValue_fr');
+    $this->testModel->setStorevalue('name', 'en', 'testValue_en');
+    $this->testModel->setStorevalue('name', 'fr', 'testValue_fr');
     $this->testModel->save();
 
     $this->assertSame([
@@ -195,14 +195,14 @@ it('can get specified translations in one go', function () {
 });
 
 it('can get all translations for all storable attributes in one go', function () {
-    $this->testModel->setTranslation('name', 'en', 'testValue_en');
-    $this->testModel->setTranslation('name', 'fr', 'testValue_fr');
+    $this->testModel->setStorevalue('name', 'en', 'testValue_en');
+    $this->testModel->setStorevalue('name', 'fr', 'testValue_fr');
 
-    $this->testModel->setTranslation('other_field', 'en', 'testValue_en');
-    $this->testModel->setTranslation('other_field', 'fr', 'testValue_fr');
+    $this->testModel->setStorevalue('other_field', 'en', 'testValue_en');
+    $this->testModel->setStorevalue('other_field', 'fr', 'testValue_fr');
 
-    $this->testModel->setTranslation('field_with_mutator', 'en', 'testValue_en');
-    $this->testModel->setTranslation('field_with_mutator', 'fr', 'testValue_fr');
+    $this->testModel->setStorevalue('field_with_mutator', 'en', 'testValue_en');
+    $this->testModel->setStorevalue('field_with_mutator', 'fr', 'testValue_fr');
     $this->testModel->save();
 
     $this->assertSame([
@@ -222,14 +222,14 @@ it('can get all translations for all storable attributes in one go', function ()
 });
 
 it('can get specified translations for all storable attributes in one go', function () {
-    $this->testModel->setTranslation('name', 'en', 'testValue_en');
-    $this->testModel->setTranslation('name', 'fr', 'testValue_fr');
+    $this->testModel->setStorevalue('name', 'en', 'testValue_en');
+    $this->testModel->setStorevalue('name', 'fr', 'testValue_fr');
 
-    $this->testModel->setTranslation('other_field', 'en', 'testValue_en');
-    $this->testModel->setTranslation('other_field', 'fr', 'testValue_fr');
+    $this->testModel->setStorevalue('other_field', 'en', 'testValue_en');
+    $this->testModel->setStorevalue('other_field', 'fr', 'testValue_fr');
 
-    $this->testModel->setTranslation('field_with_mutator', 'en', 'testValue_en');
-    $this->testModel->setTranslation('field_with_mutator', 'fr', 'testValue_fr');
+    $this->testModel->setStorevalue('field_with_mutator', 'en', 'testValue_en');
+    $this->testModel->setStorevalue('field_with_mutator', 'fr', 'testValue_fr');
     $this->testModel->save();
 
     $this->assertSame([
@@ -240,16 +240,16 @@ it('can get specified translations for all storable attributes in one go', funct
 });
 
 it('can get the locales which have a translation', function () {
-    $this->testModel->setTranslation('name', 'en', 'testValue_en');
-    $this->testModel->setTranslation('name', 'fr', 'testValue_fr');
+    $this->testModel->setStorevalue('name', 'en', 'testValue_en');
+    $this->testModel->setStorevalue('name', 'fr', 'testValue_fr');
     $this->testModel->save();
 
     expect($this->testModel->getTranslatedLocales('name'))->toBe(['en', 'fr']);
 });
 
 it('can forget a translation', function () {
-    $this->testModel->setTranslation('name', 'en', 'testValue_en');
-    $this->testModel->setTranslation('name', 'fr', 'testValue_fr');
+    $this->testModel->setStorevalue('name', 'en', 'testValue_en');
+    $this->testModel->setStorevalue('name', 'fr', 'testValue_fr');
     $this->testModel->save();
 
     $this->assertSame([
@@ -265,8 +265,8 @@ it('can forget a translation', function () {
 });
 
 it('can forget all translations of field', function () {
-    $this->testModel->setTranslation('name', 'en', 'testValue_en');
-    $this->testModel->setTranslation('name', 'fr', 'testValue_fr');
+    $this->testModel->setStorevalue('name', 'en', 'testValue_en');
+    $this->testModel->setStorevalue('name', 'fr', 'testValue_fr');
     $this->testModel->save();
 
     $this->assertSame([
@@ -286,8 +286,8 @@ it('can forget all translations of field', function () {
 });
 
 it('can forget all translations of field and make field null', function () {
-    $this->testModel->setTranslation('name', 'en', 'testValue_en');
-    $this->testModel->setTranslation('name', 'fr', 'testValue_fr');
+    $this->testModel->setStorevalue('name', 'en', 'testValue_en');
+    $this->testModel->setStorevalue('name', 'fr', 'testValue_fr');
     $this->testModel->save();
 
     $this->assertSame([
@@ -307,8 +307,8 @@ it('can forget all translations of field and make field null', function () {
 });
 
 it('can forget a field with mutator translation', function () {
-    $this->testModel->setTranslation('field_with_mutator', 'en', 'testValue_en');
-    $this->testModel->setTranslation('field_with_mutator', 'fr', 'testValue_fr');
+    $this->testModel->setStorevalue('field_with_mutator', 'en', 'testValue_en');
+    $this->testModel->setStorevalue('field_with_mutator', 'fr', 'testValue_fr');
     $this->testModel->save();
 
     $this->assertSame([
@@ -324,14 +324,14 @@ it('can forget a field with mutator translation', function () {
 });
 
 it('can forget all translations', function () {
-    $this->testModel->setTranslation('name', 'en', 'testValue_en');
-    $this->testModel->setTranslation('name', 'fr', 'testValue_fr');
+    $this->testModel->setStorevalue('name', 'en', 'testValue_en');
+    $this->testModel->setStorevalue('name', 'fr', 'testValue_fr');
 
-    $this->testModel->setTranslation('other_field', 'en', 'testValue_en');
-    $this->testModel->setTranslation('other_field', 'fr', 'testValue_fr');
+    $this->testModel->setStorevalue('other_field', 'en', 'testValue_en');
+    $this->testModel->setStorevalue('other_field', 'fr', 'testValue_fr');
 
-    $this->testModel->setTranslation('field_with_mutator', 'en', 'testValue_en');
-    $this->testModel->setTranslation('field_with_mutator', 'fr', 'testValue_fr');
+    $this->testModel->setStorevalue('field_with_mutator', 'en', 'testValue_en');
+    $this->testModel->setStorevalue('field_with_mutator', 'fr', 'testValue_fr');
     $this->testModel->save();
 
     $this->assertSame([
@@ -367,7 +367,7 @@ it('can forget all translations', function () {
 it('will throw an exception when trying to translate an unstorable attribute', function () {
     $this->expectException(AttributeIsNotStorable::class);
 
-    $this->testModel->setTranslation('untranslated', 'en', 'value');
+    $this->testModel->setStorevalue('untranslated', 'en', 'value');
 });
 
 it('is compatible with accessors on non storable attributes', function () {
@@ -389,7 +389,7 @@ it('can use accessors on translated attributes', function () {
         }
     };
 
-    $testModel->setTranslation('name', 'en', 'testValue_en');
+    $testModel->setStorevalue('name', 'en', 'testValue_en');
 
     expect('I just accessed testValue_en')->toEqual($testModel->name);
 });
@@ -402,7 +402,7 @@ it('can use mutators on translated attributes', function () {
         }
     };
 
-    $testModel->setTranslation('name', 'en', 'testValue_en');
+    $testModel->setStorevalue('name', 'en', 'testValue_en');
 
     expect('I just mutated testValue_en')->toEqual($testModel->name);
 });
@@ -430,7 +430,7 @@ it('can set translations for default language', function () {
 it('can set multiple translations at once', function () {
     $translations = ['nl' => 'hallo', 'en' => 'hello', 'kh' => 'សួរស្តី'];
 
-    $this->testModel->setTranslations('name', $translations);
+    $this->testModel->setStorevalues('name', $translations);
     $this->testModel->save();
 
     expect($this->testModel->getTranslations('name'))->toEqual($translations);
@@ -443,8 +443,8 @@ it('can check if an attribute is storable', function () {
 });
 
 it('can check if an attribute has translation', function () {
-    $this->testModel->setTranslation('name', 'en', 'testValue_en');
-    $this->testModel->setTranslation('name', 'nl', null);
+    $this->testModel->setStorevalue('name', 'en', 'testValue_en');
+    $this->testModel->setStorevalue('name', 'nl', null);
     $this->testModel->save();
 
     expect($this->testModel->hasTranslation('name', 'en'))->toBeTrue();
@@ -480,7 +480,7 @@ it('can set multiple translations when a mutator is defined', function () {
         'kh' => 'សួរស្តី',
     ];
 
-    $testModel->setTranslations('name', $translations);
+    $testModel->setStorevalues('name', $translations);
 
     $testModel->save();
 
@@ -514,12 +514,12 @@ it('can translate a field based on the translations of another one', function ()
         }
     });
 
-    $testModel->setTranslations('name', [
+    $testModel->setStorevalues('name', [
         'nl' => 'wereld',
         'en' => 'world',
     ]);
 
-    $testModel->setTranslations('other_field', [
+    $testModel->setStorevalues('other_field', [
         'nl' => 'hallo',
         'en' => 'hello',
     ]);
@@ -551,8 +551,8 @@ it('handle null value from database', function () {
 it('can get all translations', function () {
     $translations = ['nl' => 'hallo', 'en' => 'hello'];
 
-    $this->testModel->setTranslations('name', $translations);
-    $this->testModel->setTranslations('field_with_mutator', $translations);
+    $this->testModel->setStorevalues('name', $translations);
+    $this->testModel->setStorevalues('field_with_mutator', $translations);
     $this->testModel->save();
 
     $this->assertEquals([
@@ -565,15 +565,15 @@ it('can get all translations', function () {
 it('will return fallback locale translation when getting an empty translation from the locale', function () {
     config()->set('app.fallback_locale', 'en');
 
-    $this->testModel->setTranslation('name', 'en', 'testValue_en');
-    $this->testModel->setTranslation('name', 'nl', null);
+    $this->testModel->setStorevalue('name', 'en', 'testValue_en');
+    $this->testModel->setStorevalue('name', 'nl', null);
     $this->testModel->save();
 
     expect($this->testModel->getTranslation('name', 'nl'))->toBe('testValue_en');
 });
 
 it('will return correct translation value if value is set to zero', function () {
-    $this->testModel->setTranslation('name', 'nl', '0');
+    $this->testModel->setStorevalue('name', 'nl', '0');
     $this->testModel->save();
 
     expect($this->testModel->getTranslation('name', 'nl'))->toBe('0');
@@ -582,8 +582,8 @@ it('will return correct translation value if value is set to zero', function () 
 it('will not return fallback value if value is set to zero', function () {
     config()->set('app.fallback_locale', 'en');
 
-    $this->testModel->setTranslation('name', 'en', '1');
-    $this->testModel->setTranslation('name', 'nl', '0');
+    $this->testModel->setStorevalue('name', 'en', '1');
+    $this->testModel->setStorevalue('name', 'nl', '0');
     $this->testModel->save();
 
     expect($this->testModel->getTranslation('name', 'nl'))->toBe('0');
@@ -592,8 +592,8 @@ it('will not return fallback value if value is set to zero', function () {
 it('will not remove zero value of other locale in database', function () {
     config()->set('app.fallback_locale', 'en');
 
-    $this->testModel->setTranslation('name', 'nl', '0');
-    $this->testModel->setTranslation('name', 'en', '1');
+    $this->testModel->setStorevalue('name', 'nl', '0');
+    $this->testModel->setStorevalue('name', 'en', '1');
     $this->testModel->save();
 
     expect($this->testModel->getTranslation('name', 'nl'))->toBe('0');
@@ -630,7 +630,7 @@ it('can set and fetch attributes based on set locale', function () {
 it('can replace translations', function () {
     $translations = ['nl' => 'hallo', 'en' => 'hello', 'kh' => 'សួរស្តី'];
 
-    $this->testModel->setTranslations('name', $translations);
+    $this->testModel->setStorevalues('name', $translations);
     $this->testModel->save();
 
     $newTranslations = ['es' => 'hola'];
@@ -646,8 +646,8 @@ it('can use any locale if given locale not set', function () {
         fallbackAny: true,
     );
 
-    $this->testModel->setTranslation('name', 'fr', 'testValue_fr');
-    $this->testModel->setTranslation('name', 'de', 'testValue_de');
+    $this->testModel->setStorevalue('name', 'fr', 'testValue_fr');
+    $this->testModel->setStorevalue('name', 'de', 'testValue_de');
     $this->testModel->save();
 
     $this->testModel->setLocale('it');
@@ -661,8 +661,8 @@ it('will return set translation when fallback any set', function () {
         fallbackAny: true,
     );
 
-    $this->testModel->setTranslation('name', 'fr', 'testValue_fr');
-    $this->testModel->setTranslation('name', 'de', 'testValue_de');
+    $this->testModel->setStorevalue('name', 'fr', 'testValue_fr');
+    $this->testModel->setStorevalue('name', 'de', 'testValue_de');
     $this->testModel->save();
 
     $this->testModel->setLocale('de');
@@ -676,8 +676,8 @@ it('will return fallback translation when fallback any set', function () {
         fallbackAny: true,
     );
 
-    $this->testModel->setTranslation('name', 'fr', 'testValue_fr');
-    $this->testModel->setTranslation('name', 'en', 'testValue_en');
+    $this->testModel->setStorevalue('name', 'fr', 'testValue_fr');
+    $this->testModel->setStorevalue('name', 'en', 'testValue_en');
     $this->testModel->save();
 
     $this->testModel->setLocale('de');
@@ -691,8 +691,8 @@ it('provides a flog to not return any translation when getting an unknown locale
         fallbackAny: true,
     );
 
-    $this->testModel->setTranslation('name', 'fr', 'testValue_fr');
-    $this->testModel->setTranslation('name', 'de', 'testValue_de');
+    $this->testModel->setStorevalue('name', 'fr', 'testValue_fr');
+    $this->testModel->setStorevalue('name', 'de', 'testValue_de');
     $this->testModel->save();
 
     $this->testModel->setLocale('it');
@@ -706,16 +706,16 @@ it('will return default fallback locale translation when getting an unknown loca
         fallbackAny: true,
     );
 
-    $this->testModel->setTranslation('name', 'en', 'testValue_en');
+    $this->testModel->setStorevalue('name', 'en', 'testValue_en');
     $this->testModel->save();
 
     expect($this->testModel->getTranslation('name', 'fr'))->toBe('testValue_en');
 });
 
 it('will return all locales when getting all translations', function () {
-    $this->testModel->setTranslation('name', 'en', 'testValue_en');
-    $this->testModel->setTranslation('name', 'fr', 'testValue_fr');
-    $this->testModel->setTranslation('name', 'tr', 'testValue_tr');
+    $this->testModel->setStorevalue('name', 'en', 'testValue_en');
+    $this->testModel->setStorevalue('name', 'fr', 'testValue_fr');
+    $this->testModel->setStorevalue('name', 'tr', 'testValue_tr');
     $this->testModel->save();
 
     expect($this->testModel->locales())->toEqual([

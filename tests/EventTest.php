@@ -11,7 +11,7 @@ beforeEach(function () {
 });
 
 it('will fire an event when a translation has been set', function () {
-    $this->testModel->setTranslation('name', 'en', 'testValue_en');
+    $this->testModel->setStorevalue('name', 'en', 'testValue_en');
 
     Event::assertDispatched(TranslationHasBeenSetEvent::class);
 });

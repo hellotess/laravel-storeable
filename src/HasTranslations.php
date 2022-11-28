@@ -29,7 +29,7 @@ trait HasTranslations
     public function setAttribute($key, $value)
     {
         if ($this->isStorableAttribute($key) && is_array($value)) {
-            return $this->setTranslations($key, $value);
+            return $this->setStorevalues($key, $value);
         }
 
         // Pass arrays and unstorable attributes to the parent method.
@@ -39,7 +39,7 @@ trait HasTranslations
 
         // If the attribute is storable and not already translated, set a
         // translation for the current app locale.
-        return $this->setTranslation($key, $this->getLocale(), $value);
+        return $this->setStorevalue($key, $this->getLocale(), $value);
     }
 
     public function translate(string $key, string $locale = '', bool $useFallbackLocale = true): mixed
@@ -106,7 +106,7 @@ trait HasTranslations
         });
     }
 
-    public function setTranslation(string $key, string $locale, $value): self
+    public function setStorevalue(string $key, string $locale, $value): self
     {
         $this->guardAgainstNonStorableAttribute($key);
 
@@ -131,13 +131,13 @@ trait HasTranslations
         return $this;
     }
 
-    public function setTranslations(string $key, array $translations): self
+    public function setStorevalues(string $key, array $translations): self
     {
         $this->guardAgainstNonStorableAttribute($key);
 
         if (! empty($translations)) {
             foreach ($translations as $locale => $translation) {
-                $this->setTranslation($key, $locale, $translation);
+                $this->setStorevalue($key, $locale, $translation);
             }
         } else {
             $this->attributes[$key] = $this->asJson([]);
@@ -155,7 +155,7 @@ trait HasTranslations
             $this->$key
         );
 
-        $this->setTranslations($key, $translations);
+        $this->setStorevalues($key, $translations);
 
         return $this;
     }
@@ -207,7 +207,7 @@ trait HasTranslations
             $this->forgetTranslation($key, $locale);
         }
 
-        $this->setTranslations($key, $translations);
+        $this->setStorevalues($key, $translations);
 
         return $this;
     }
