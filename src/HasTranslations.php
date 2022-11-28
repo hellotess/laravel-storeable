@@ -3,10 +3,10 @@
 namespace Hellotess\Storable;
 
 use Exception;
-use Illuminate\Database\Eloquent\Casts\Attribute;
-use Illuminate\Support\Str;
 use Hellotess\Storable\Events\StorevalueHasBeenSetEvent;
 use Hellotess\Storable\Exceptions\AttributeIsNotStorable;
+use Illuminate\Database\Eloquent\Casts\Attribute;
+use Illuminate\Support\Str;
 
 trait HasTranslations
 {

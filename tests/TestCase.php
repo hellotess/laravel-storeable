@@ -2,10 +2,10 @@
 
 namespace Hellotess\Storable\Test;
 
+use Hellotess\Storable\StorableServiceProvider;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 use Orchestra\Testbench\TestCase as Orchestra;
-use Hellotess\Storable\StorableServiceProvider;
 
 abstract class TestCase extends Orchestra
 {

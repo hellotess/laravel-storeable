@@ -2,8 +2,8 @@
 
 namespace Hellotess\Storable\Test\TestSupport;
 
-use Illuminate\Database\Eloquent\Model;
 use Hellotess\Storable\HasTranslations;
+use Illuminate\Database\Eloquent\Model;
 
 class TestModel extends Model
 {

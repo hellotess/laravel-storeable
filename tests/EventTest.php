@@ -1,8 +1,8 @@
 <?php
 
-use Illuminate\Support\Facades\Event;
 use Hellotess\Storable\Events\StorevalueHasBeenSetEvent;
 use Hellotess\Storable\Test\TestSupport\TestModel;
+use Illuminate\Support\Facades\Event;
 
 beforeEach(function () {
     Event::fake();

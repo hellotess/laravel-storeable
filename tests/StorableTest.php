@@ -1,9 +1,9 @@
 <?php
 
-use Illuminate\Support\Facades\Storage;
 use Hellotess\Storable\Exceptions\AttributeIsNotStorable;
 use Hellotess\Storable\Facades\Storable;
 use Hellotess\Storable\Test\TestSupport\TestModel;
+use Illuminate\Support\Facades\Storage;
 
 beforeEach(function () {
     $this->testModel = new TestModel();
