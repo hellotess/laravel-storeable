@@ -1,5 +1,5 @@
 {
-    "name": "hellotess/laravel-storelevel",
+    "name": "hellotess/storable",
     "description": "A trait to make an Eloquent model hold translations",
     "homepage": "https://github.com/spatie/laravel-translatable",
     "license": "MIT",
@@ -44,11 +44,11 @@
     "extra": {
         "laravel": {
             "providers": [
-                "Spatie\\Translatable\\TranslatableServiceProvider"
+                "Hellotess\\Storable\\StorableServiceProvider"
             ]
         },
         "aliases": {
-            "Translatable": "Spatie\\Translatable\\Facades\\Translatable"
+            "Storable": "Hellotess\\Storable\\Facades\\Storable"
         }
     },
     "minimum-stability": "dev",
